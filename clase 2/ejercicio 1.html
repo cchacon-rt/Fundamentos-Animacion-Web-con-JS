@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>Arrastrar y soltar</title>
+
+
+    <style>
+        body{
+            margin: 0;
+            background: #222;
+            overflow: hidden;
+        }
+        canvas{
+            display: block;
+            cursor: grab;
+        }
+    </style>
+</head>
+
+
+<body>
+    <canvas id="micanvas"></canvas>
+    <script>
+        //manda a llamar las funciones de js para animar
+        const canvas = document.getElementById("micanvas");
+        const ctx = canvas.getContext("2d");
+        //permite que los graficos ocupen todo el espacio visible del navegador
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Ball{
+            constructor(x,y,radius, color){
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                //indicamos que esta accion es de arrastre
+                this.isDragging = false;
+
+            }
+            draw(){
+                ctx.beginPath();
+
+                ctx.arc(this.x,this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+
+                ctx.closePath();
+            }
+            //detectar si se encuentra dentro del circulo
+            isInside(mx,my){
+                //calcula la distancia horizontal y vertical entre el pto evaluado y el circulo
+                let dx = mx - this.x;
+                let dy = my - this.y;
+
+                let distancia = Math.sqrt(dx * dx + dy * dy);
+                //calcula la distancia en linea recta aka la hipotenusa
+                //desde el centro del circulo al punto mx y my
+                return distancia < this.radius; 
+            }
+
+            cambiarColor(){
+                let newColor;
+                do{
+                    //genera indice entero aleatorio
+                    newColor = colors[Math.floor(Math.random()*colors.length)];
+                }while(newColor === this.color);
+                this.color=newColor;
+            }
+        }
+
+        //arreglo vacio llamado balones
+        const balls=[];
+        const colors = ["#F29191", "#F7ADAD", "#B1E5E6", "#CCFBFA", "#659287", "#88BDA4", "#B1D3B9", "#E6F2DD", "#C5B3D3", "#FFE2E2"];
+        //ciclo se ejecuta 10 veces
+        for(let i = 0; i < 10; i++){
+            //aqui calculamos la posicion horizontal de c/pelotap3
+            let x = 100 + i * 120;
+            //aqui calculamos la pos vertical de c/pelotap3
+            let y = canvas.height / 2;
+            let color = colors[i % colors.length];
+
+            balls.push(new Ball(x,y,40, color));
+        }
+
+        let draggingBall = null;
+
+        //hace q las pelotitas puedan ser arrastradas
+        canvas.addEventListener("mousedown", e =>{
+            const mx = e.clientX; //pos horizontal del mouse
+            const my = e.clientY; //pos vertical del mouse
+            for(let ball of balls){
+                if(ball.isInside(mx,my)){
+                    draggingBall=ball;
+                    ball.isDragging = true;
+                    //cambia el modo del cursos
+                    canvas.style.cursor = "grabbing";
+                    break;
+                }
+            }
+        })
+
+        //detecta movimiento del mouse y actualiza la pos de la bolita
+        canvas.addEventListener("mousemove", e => {
+            //
+            if (draggingBall) {
+                draggingBall.x = e.clientX;
+                draggingBall.y = e.clientY;
+            }
+        });
+
+        //evento detecta cuando el mouse se suelte
+        canvas.addEventListener("mouseup", () =>{
+            //si bolita se suelta cambia color y cursor cambia a flechita
+            if(draggingBall){
+                draggingBall.isDragging = false;
+                draggingBall.cambiarColor();
+                canvas.style.cursor = "grab";
+
+                draggingBall = null;
+            }
+        });
+
+
+        canvas.addEventListener("mouseleave", () => {
+            if (draggingBall) {
+                draggingBall.isDragging = false;
+                draggingBall.cambiarColor();
+                draggingBall = null;
+                canvas.style.cursor = "grab";
+            }
+        });
+
+
+        function animate(){
+            ctx.clearRect (0, 0, canvas.width, canvas.height);
+            for(let ball of balls){
+                ball.draw();
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        window.addEventListener("resize", () =>{
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+    </script>
+
+
+</body>
+</html>

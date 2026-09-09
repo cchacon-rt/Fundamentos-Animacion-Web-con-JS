@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicio 2</title>
+
+    <style>
+
+    </style>
+
+</head>
+<body>
+    <h2>Simulador de circuito eléctrico</h2>
+    <p>Curso de animación</p>
+    <p>Arrastra un material a la zona gris del circuito eléctrico para ver si enciende el foco.</p>
+
+    <canvas id="canvas" width="700" height="350"></canvas>
+
+    <div id="materiales">
+        <div class="material" draggable="true" data-tipo="aislante">Madera</div>
+        <div class="material" draggable="true" data-tipo="aislante">Plástico</div>
+        <div class="material" draggable="true" data-tipo="conductor">Cobre</div>
+        <div class="material" draggable="true" data-tipo="aislante">Goma</div>
+        <div class="material" draggable="true" data-tipo="conductor">Tungsteno</div>
+        <div class="material" draggable="true" data-tipo="conductor">Hierro</div>
+        <div class="material" draggable="true" data-tipo="aislante">Vidrio</div>
+        <div class="material" draggable="true" data-tipo="conductor">Oro</div>
+        <div class="material" draggable="true" data-tipo="aislante">Cartón</div>
+        <div class="material" draggable="true" data-tipo="aislante">Lana</div>
+    </div>
+    <audio id="sonidoElectricidad" src=""></audio>
+
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx.canvas.getContext("2d");
+
+        let focoEncendido = false; //el foco no se enciende al no tener nada
+        let materialEnZona = null; //tipo de material colocado
+        let nombreMaterial = ""; //nombre visible
+        let electricidad = []; //array de particulas
+        let animationFrameId = null; //id de la animacion
+        let parpadeo = false; //parpadeo del foco
+        let focoTimer = 0; //contador de frames
+        const sonido = document.getElementById("sonidoElectricidad"); //referencia al audio
+        let sonidoReproduciendo = false; //evita que se reproduzca el sonido
+
+        function dibujarCircuito(){
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+
+            //cables
+            ctx.strokeStyle = "#ff5722"; //cor da linea
+            ctx.lineWidth = 6; //grosor de la linea en pixeles
+            ctx.beginPath(); 
+            ctx.moveTo(100,175); //mueve el lapiz en las coordenadas
+            ctx.moveTo(230,175); //a-b
+            ctx.moveTo(230,100);//b-c
+            ctx.moveTo(370,100);//c-d
+            ctx.moveTo(370,175);//d-e
+            ctx.moveTo(520,175);//e-f
+            ctx.stroke();
+        }
+    </script>
+
+
+
+
+
+</body>
+</html>

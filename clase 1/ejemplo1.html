@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    
+    <canvas id="micanvas" width="500" height="500">
+        Tu navegador no soporta canvas.
+    </canvas>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const canvas = document.getElementById("micanvas");
+            const ctx = canvas.getContext("2d");
+            
+            //Rectangulo
+            ctx.fillStyle = "#20566B";
+            ctx.fillRect(20, 20, 120, 80);
+        
+            //Circulo
+            ctx.beginPath();
+            ctx.arc(200, 125, 50, 0, Math.PI *2);
+            ctx.fillStyle = "#206B3C";
+            ctx.fill();
+
+            //Triangulo
+            ctx.beginPath();
+            ctx.fillStyle = "#43206B";
+            ctx.moveTo(300, 50);
+            ctx.lineTo(350, 150);
+            ctx.lineTo(250, 150);
+            ctx.closePath(); 
+            ctx.fill();
+
+
+        });
+    </script>
+
+
+</body>
+</html>

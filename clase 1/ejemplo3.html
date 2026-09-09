@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo 3</title>
+
+    <style>
+        body{
+            margin:0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #222;            
+        }
+
+        #juego{
+            position: relative;
+            width: 800px;
+            height: 500px;
+
+
+            /*img del fondo*/
+            background-image: url(imgs/mar.jpg);
+            background-size: cover;
+            background-position: center;
+
+            overflow: hidden; /*recortar el contenido que sobresale*/
+            border: 3px solid white; 
+        }
+        #personaje{
+            position: absolute;
+
+            width: 80px;
+            height: 80px;
+
+            /*img del pesronaje*/
+            background-image: url(imgs/bote.png);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            left: 360px;
+            top: 210px;
+
+        }
+    </style>
+
+
+
+
+</head>
+<body>
+    <div id="juego">
+        <div id="personaje"></div>
+    </div>
+
+    <script>
+        //Obtener el elemento del personaje
+        const personaje = document.getElementById('personaje');
+
+        //posicion inicial del personaje
+        let x = 360;
+        let y = 210;
+
+        // velocidad de movimiento del personaje
+        const velocidad = 9.8;
+
+        // Detectar cuando se presiona una tecla
+        document.addEventListener('keydown', (event) => {
+
+            //Evitamos que las flechas de direccion hagan scroll en la pagina
+            if(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)){
+                event.preventDefault();
+            }
+
+            //Movimiento hacia arriba
+            if (event.key === 'ArrowUp'){
+                y -= velocidad;
+            }
+
+            //Movimiento hacia abajo
+            if (event.key === 'ArrowDown'){
+                y += velocidad;
+            }
+
+            //Movimiento hacia izq
+            if (event.key === 'ArrowLeft'){
+                x -= velocidad;
+            }
+
+            //Movimiento hacia derecha
+            if (event.key === 'ArrowRight'){
+                x += velocidad;
+            }
+
+
+
+            //Limite del escenario
+            const anchoJuego = 800;
+            const altoJuego = 500;
+            const anchoPersonaje = 40;
+            const altoPersonaje = 80;
+
+            //evita que salga por la izquierda
+            if (x < 0) {
+                x=0;
+            }
+            //evita que salga por arriba
+            if (y < 0){
+                y = 0;
+            }
+            if (x > anchoJuego - anchoPersonaje){
+                x = anchoJuego - anchoPersonaje;
+            }
+            if (y > altoJuego - altoPersonaje){
+                y = altoJuego - altoPersonaje;
+            }
+
+            //Actualizar la posicion del personaje en el DOM
+            personaje.style.left = x + 'px';
+            personaje.style.top = y + 'px';
+
+        });
+    </script>
+
+
+
+
+</body>
+</html>

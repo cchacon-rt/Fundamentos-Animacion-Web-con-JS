@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>Ejemplo 2</title>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500" style="border:1px solid black;">
+        Tu navegador no soporta canva :$
+    </canvas>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        let x = 50; //pos hor
+        let y = 200; //pos ver
+
+        let dx = 3; //velocidad en el eje x
+        let dy = 2; //velocidad en el eje y
+
+
+        function animar(){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillRect(x, y, 50, 50);
+            ctx.fillStyle = "crimson";
+
+            x += dx;
+            y += dy;
+
+
+            //Rebote horizontal
+            if(x + 50 > canvas.width || x < 0){
+                dx *= -1; //invierte la direccion
+            }
+            //Rebote vertical
+            if(y + 50 > canvas.height || y < 0){
+                dy *= -1; //invierte la direccion 
+            }
+
+            requestAnimationFrame(animar);
+
+        }
+
+
+        animar();
+    </script>
+
+</body>
+</html> 
