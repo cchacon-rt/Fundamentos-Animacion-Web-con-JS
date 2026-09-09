@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ejercicio 2</title>
+    <title>Simulacion</title>
 
     <style>
 
@@ -15,52 +15,112 @@
     <p>Curso de animación</p>
     <p>Arrastra un material a la zona gris del circuito eléctrico para ver si enciende el foco.</p>
 
-    <canvas id="canvas" width="700" height="350"></canvas>
+    
+    
+    <canvas id="canvas" width="700"  height="350"></canvas>
 
-    <div id="materiales">
-        <div class="material" draggable="true" data-tipo="aislante">Madera</div>
-        <div class="material" draggable="true" data-tipo="aislante">Plástico</div>
-        <div class="material" draggable="true" data-tipo="conductor">Cobre</div>
-        <div class="material" draggable="true" data-tipo="aislante">Goma</div>
-        <div class="material" draggable="true" data-tipo="conductor">Tungsteno</div>
-        <div class="material" draggable="true" data-tipo="conductor">Hierro</div>
-        <div class="material" draggable="true" data-tipo="aislante">Vidrio</div>
-        <div class="material" draggable="true" data-tipo="conductor">Oro</div>
-        <div class="material" draggable="true" data-tipo="aislante">Cartón</div>
-        <div class="material" draggable="true" data-tipo="aislante">Lana</div>
+    <div id ="materiales">
+    <div class = "material" draggable="true" data-tipo="aislante">Madera</div>
+    <div class = "material" draggable="true" data-tipo="aislante">Plástico</div>
+    <div class = "material" draggable="true" data-tipo="conductor">Cobre</div>
+    <div class = "material" draggable="true" data-tipo="aislante">Goma</div>
+    <div class = "material" draggable="true" data-tipo="conductor">Tungsteno</div>
+    <div class = "material" draggable="true" data-tipo="conductor">Hierro</div>
+    <div class = "material" draggable="true" data-tipo="aislante">Vidrio</div>
+    <div class = "material" draggable="true" data-tipo="conductor">Oro</div>
+    <div class = "material" draggable="true" data-tipo="aislante">Cartón</div>
+    <div class = "material" draggable="true" data-tipo="aislante">Lana</div>
+   
     </div>
     <audio id="sonidoElectricidad" src=""></audio>
+   <script> 
+    const canvas = document.getElementById("canvas");
+    const ctx= canvas.getContext("2d");
 
+    let focoEncendido = false;//indica el foco no se encienca  
+    let materialEnZona=null;//tipo de material colocado 
+    let nombreMaterial="";//nombre visible
+    let electricidad = [];//Array de particulas electricas 
+    let AnimationFrameId=null;//Id de la animación
+    let parpadeo= false;//Parpadeo del foco
+    let focoTimer = 0;// Contador de frames
+    const sonido = document.getElementById("sonidoElectricidad");//referenciar el audio
+    let sonidoReproduciendo = false;// Evita que se reprodusca el sonido 
+    function dibujarCircuito(){
+        ctx.clearRect(0,0, canvas.Width, canvas.height);
+        //cable rojo
+        ctx.strokeStyle ="#ff5522";// definir el color de la linea 
+        ctx.lineWidth = 6;// grososr de la linea en pixeles
+        ctx.beginPath();
+        ctx.moveTo(100,175);//Mueve el lapiz al punto en las coordenadas
+        ctx.lineTo(230,175);//dinuja una linea A-B
+        ctx.lineTo(230,100);//B-C
+        ctx.lineTo(370,100);//C-D
+        ctx.lineTo(370,175);//D-E
+        ctx.lineTo(520,175);//E-F
+        ctx.stroke();
 
-    <script>
-        const canvas = document.getElementById("canvas");
-        const ctx.canvas.getContext("2d");
+        //cable negro
+        ctx.clearRect(0,0, canvas.Width, canvas.height);
+        ctx.strokeStyle ="#000";// definir el color de la linea 
+        ctx.lineWidth = 6;// grososr de la linea en pixeles
+        ctx.beginPath();
+        ctx.moveTo(500,175);//Mueve el lapiz al punto en las coordenadas
+        ctx.lineTo(600,175);//dinuja una linea A-B
+        ctx.lineTo(600,250);//F-G
+        ctx.lineTo(60,250);//G-H
+        ctx.lineTo(60,220);//H-I
+        ctx.lineTo(100,220);//J-A
+        ctx.lineTo(100,175);//
+        ctx.stroke();
+        //Pila
+        ctx.beginPath();
+        //Pilas
+        ctx.fillStyle = "9e9e9e";//gris
+        ctx.fillRect(40,130,30,90);
+        ctx.fillStyle="#f44336";//roja
+        ctx.fillRect(70,130,30,90);
+        //texto
+        ctx.fillStyle = "black";
+        ctx.font = "bold 16px Comic Sans MS"
+        ctx.fillText("-",48,125);
+        ctx.fillText ("+",78,125);
+        ctx.stroke();
+        //Zona material
+        ctx.fillsStyle ="cfd8dc";//Definir el color de relleno gris claro 
+        ctx.fillRect(230,85,140,30);//Dibuja un cuadrado 
+        ctx.strokeStyle="607d8b";//define el color del borde
+        ctx.fillStyle="#000"//dibuja el contorno del borde 
+        ctx.font ="bold 14px Comic Sans MS"//font de texto
+        ctx.fillText("Zona de material", 240, 105);//texto
 
-        let focoEncendido = false; //el foco no se enciende al no tener nada
-        let materialEnZona = null; //tipo de material colocado
-        let nombreMaterial = ""; //nombre visible
-        let electricidad = []; //array de particulas
-        let animationFrameId = null; //id de la animacion
-        let parpadeo = false; //parpadeo del foco
-        let focoTimer = 0; //contador de frames
-        const sonido = document.getElementById("sonidoElectricidad"); //referencia al audio
-        let sonidoReproduciendo = false; //evita que se reproduzca el sonido
+        //comprueba si la variable materialEnZona tiene un valor valido
+        if(materialEnZona){
+            //cambia el color de relleno si es conductor=naranja, aislante=azul
+            ctx.fillStyle = materialEnZona ==="conductor" ? "#ff9800":"#2196f3"
+        //Dibujar un rectangulo relleno
+        ctx.fillRect(240,90,120,20);
+        ctx.fillStyle="#fff";
+        //nombre en zona de material 
+        ctx.fillText(nombreMaterial,250,105);
+    }
 
-        function dibujarCircuito(){
-            ctx.clearRect(0,0, canvas.width, canvas.height);
-
-            //cables
-            ctx.strokeStyle = "#ff5722"; //cor da linea
-            ctx.lineWidth = 6; //grosor de la linea en pixeles
-            ctx.beginPath(); 
-            ctx.moveTo(100,175); //mueve el lapiz en las coordenadas
-            ctx.moveTo(230,175); //a-b
-            ctx.moveTo(230,100);//b-c
-            ctx.moveTo(370,100);//c-d
-            ctx.moveTo(370,175);//d-e
-            ctx.moveTo(520,175);//e-f
-            ctx.stroke();
-        }
+    //foco
+    //Inicia lienzo
+    ctx.beginPath();
+    //Dibujar el circulo para el foco
+    ctx.arc(520,175,25,0, Math,PI*2);//circulo
+    ctx.fillStyle = focoEncendico && parpadeo ? "Yellow": "#bdbdbd";
+    //terminar el lienzo
+    ctx.fill();
+    ctx.strokeStyle="555";
+    //Grosor de la linea 
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle ="black";
+    ctx.font ="14px Comic Sans MS";
+    ctx.fillText("Foco",500,215);
+    }
     </script>
 
 
