@@ -580,6 +580,20 @@ let suelo = {
                 50
             );
 
+            //Pausar
+            if(pausado){
+                //Fondo oscuro transparente
+                ctx.fillStyle = "rgba (0,0,0,0.6)";
+                ctx.fillRect(0,0,canvas.width, canvas.height);
+
+                ctx.fillStyle = "white";
+                ctx.font = "40px Arial";
+                ctx.fillText("⏸️ PAUSA ", 320, 220);
+
+                ctx.font = "20px Arial";
+                ctx.fillText("Presiona P o ESC para continuar", 265, 260);
+            }
+
         }
 
     </script>
