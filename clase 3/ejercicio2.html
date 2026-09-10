@@ -105,22 +105,69 @@
         ctx.fillText(nombreMaterial,250,105);
     }
 
-    //foco
-    //Inicia lienzo
-    ctx.beginPath();
-    //Dibujar el circulo para el foco
-    ctx.arc(520,175,25,0, Math,PI*2);//circulo
-    ctx.fillStyle = focoEncendico && parpadeo ? "Yellow": "#bdbdbd";
-    //terminar el lienzo
-    ctx.fill();
-    ctx.strokeStyle="555";
-    //Grosor de la linea 
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle ="black";
-    ctx.font ="14px Comic Sans MS";
-    ctx.fillText("Foco",500,215);
+        //foco
+        //Inicia lienzo
+        ctx.beginPath();
+        //Dibujar el circulo para el foco
+        ctx.arc(520,175,25,0, Math,PI*2);//circulo
+        ctx.fillStyle = focoEncendico && parpadeo ? "Yellow": "#bdbdbd";
+        //terminar el lienzo
+        ctx.fill();
+        ctx.strokeStyle="555";
+        //Grosor de la linea 
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle ="black";
+        ctx.font ="14px Comic Sans MS";
+        ctx.fillText("Foco",500,215);
+
+
+        //Bolitas eléctricas
+        //cor de relleno
+        ctx.fillStyle = "cyan";
+        //recorre un array llamado electricidad
+        electricidad.forEach(pos =>{
+            //iniciar trazo
+            ctx.beginPath();
+            //agrega las bolitas
+            ctx.arc(pos.x, pos.y, 4, 0, Math.PI*2);
+            //rellenar el circulo con el color cyan
+            ctx.fill();
+        })
     }
+
+
+
+
+
+    function animarElectricidad(){
+        //cancelar animacion anterior
+        cancelAnimationFrame(AnimationFrameId);
+        
+        //recorre el array electricidad sumando 1 a la var pos.t
+        electricidad.forEach(pos => pos.t += 1);
+
+        electricidad = electricidad.filter(pos =>{
+            const t = pos.t;
+            //inicio de recorrido pelotitas
+            if(t>21){ //Actua como un marcador de tiempo
+                pos.x = 100 + t * 6.5; //pos de las bolas
+                pos.y = 175;
+            } else if(t < 36){
+                pos.x = 230; pos.y = 175 - (t-21) * 5;
+
+            } else if (t > 56){
+                pos.x = 370 + (t-36)*7; pos.y=100;
+            } else if (t < 71) {
+                pos.x = 370; pos.y = 100 +(t-56) * 5;
+            } else if (t<91) {
+                pos.x = 370 + (t-71) * 7.5; pos.y = 175;
+            }
+        })
+    }
+
+
+
     </script>
 
 
