@@ -584,7 +584,7 @@ let suelo = {
             if(pausado){
                 //Fondo oscuro transparente
                 ctx.fillStyle = "rgba (0,0,0,0.6)";
-                ctx.fillRect(0,0,canvas.width, canvas.height);
+                ctx.fillRect(0,0,canvas.width.canvas.height);
 
                 ctx.fillStyle = "white";
                 ctx.font = "40px Arial";
@@ -594,7 +594,47 @@ let suelo = {
                 ctx.fillText("Presiona P o ESC para continuar", 265, 260);
             }
 
+            //Game Over
+            if(gameOver){
+                ctx.fillStyle = "rgba (0,0,0,0.7)";
+                ctx.fillRect (0,0,canvas.width.canvas.height);
+
+                ctx.fillStyle = "white";
+                ctx.font = "40px Arial";
+                ctx.fillText("💀 GAME OVER ", 280, 200);
+
+                ctx.font = "20px Arial";
+                ctx.fillText("Presiona R para reiniciar", 295, 275);
+            }
         }
+
+        //Game loop
+        function loop(){
+            //actualiza la logica
+            update();
+            draw();
+
+            //volver a ejecutar next frame
+            requestAnimationFrame(loop);
+        }
+
+        //Controles
+        document.addEventListener("keydown", e => {
+            //P=pausar/continuar
+            if(e.key.toLowerCase()==="p"){
+                alternarPausa();
+            }
+
+            //ESC = Pausar
+            if(e.key === "Escape"){
+                alternarPausa();
+            }
+
+            //Restart
+            if(e.key.toLowerCase() === "r"){
+                reiniciarJuego();
+            }
+        });
 
     </script>
 
