@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinosaurio</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <h1>Dinosaurio</h1>
+    <p>Usa las flechas del teclado "<" ">" para moverte, espacio para saltar y ESC para finalizar</p>
+
+    <canvas id="canvas" width="800" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        //config del juego
+        let config = {
+            gravedad: 0.6, //definir fuerza de gravedad al jugador
+            velocidadJugador: 5,
+            salto: -12,
+            spawnRate: 1500, //tasa de aparición de enemigos
+            vidaIniciales:3
+        };
+
+
+        //configuración del juego
+        let keys = {};
+        //escucha cuando se presiona una tecla
+            document.addEventListener("keydown", (e) => {
+                //evita que el navegador haga scroll predeterminado
+                if (e.key === "ArrowLeft" || 
+                    e.key === "ArrowRight" ||
+                    e.key === "ArrowUp" ||
+                    e.key === "ArrowDown"){
+                        e.preventDefault();
+                    }
+                    keys[e.key] = true;
+            });
+        //escucha cuando se suelta una tecla
+        document.addEventListener("keyup", (e) => {
+            keys[e.key] = false;
+        });
+
+
+        //creamos al jugador
+        function crearJugador(){
+            return{
+                //posicion del jugador
+                x: 100,
+                y: 300,
+
+                //tamaño
+                w: 40,
+                h: 40,
+
+                //velocidad
+                vx: 0,
+                vy: 0,
+
+                //apariencia
+                color: "#446E20",
+                //¿está saltando?
+                saltando: false,
+                //proteccion de vida
+                invulnerable:false
+            }
+        };
+
+        //enemigos
+        let enemigos = [];
+        //crea un enemigo
+        function crearEnemigo(){
+            enemigos.push({
+                //aparece en el lado derecho del canvas
+                x: canvas.width,
+                y: 310,
+                w: 30,
+                h: 40,
+
+                //velocidad hacia la izquierda
+                vx: -4,
+                color: "#6E0909"
+            });
+
+            //genera enemigos cada cierto tiempo
+            setInterval(crearEnemigo, config.spawnRate);
+        }
+
+
+
+        //colision
+        function colision(a,b){
+            return a.x < b.x + b.w && //colision arriba
+                a.x + a.w > b.x && //colision de abajo
+                a.y < b.y + b.h && //colision de izq
+                a.y + a.h > b.y //colision de derecha
+        }
+
+
+
+
+    </script>
+</body>
+</html>
