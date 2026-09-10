@@ -102,6 +102,53 @@
         }
 
 
+        //Estado del juego
+
+        let gameOver = false;
+        let pausado = false;
+        let score = 0;
+        let vidas = config.vidaIniciales;
+
+        //perder una vida
+
+        //restar una vida
+        vidas--;
+        //Eliminar temporalmente todos los enemigos
+        //para evitar recibir daño inmediatamente al reiniciar
+        enemigos=[];
+        //regresar al jugador a la posición inicial
+        jugador.x=100;
+        jugador.y=suelo.y - jugador.h;
+
+        //Detener su movimiento
+        jugador.vx=0;
+        jugador.vy=0;
+        //El jugador invulnerable por 2 segundos
+        jugador.invulnerable=true;
+
+        //si ya no quedan vidas
+        if(vidas <=0){
+            gameOver=true;
+            jugador.invulnerable=false;
+        }
+        //despues de 1s el jugador ya no será invulnerable
+        setTimeout(()=>{
+            jugador.invulnerable=false;
+        },1000);
+
+
+    //reiniciar el juego
+        function reiniciarJuego(){
+            jugador = crearJugador();
+            enemigos=[];
+            score=0;
+            //restaurar vidas
+            vidas=config.vidaIniciales;
+            gameOver=false;
+            pausado=false;
+            key={}; //objeto vacio (container) para guardar info
+        }
+
 
 
     </script>
