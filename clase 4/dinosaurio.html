@@ -7,18 +7,20 @@
 <head>
 
     <style>
-        body{
-            background-color: #111;
-            color: "white";
+
+        body {
+            background: #111;
+            color: white;
             text-align: center;
-            font-family: monospace, Arial, Helvetica, sans-serif;
+            font-family: monospace, Arial;
         }
-        canvas{
+
+        canvas {
             background: #222;
             border: 2px solid white;
             margin-top: 20px;
-            
         }
+
     </style>
 
 </head>
@@ -33,6 +35,7 @@
 
     <canvas id="canvas" width="800" height="500"></canvas>
 
+
     <script>
 
         const canvas = document.getElementById("canvas");
@@ -40,33 +43,37 @@
         const ctx = canvas.getContext("2d");
 
 
-        //Configuración del juego
+        //=========================================
+        // Configuración del juego
+        //=========================================
 
         let config = {
 
-            gravedad: 0.6, //Definir fuerza gravedad al jugador
+            gravedad: 0.6, // Fuerza de gravedad al jugador
 
-            velocidadJugador: 5, //Velocidad del jugador
+            velocidadJugador: 5, // Velocidad del jugador
 
-            salto: -12, //Representa la fuerza de salto del jugador
+            salto: -12, // Fuerza de salto
 
-            spawnRate: 1500, //Tasa de aparición
+            spawnRate: 1500, // Tiempo para que aparezcan enemigos
 
-            vidaIniciales: 3
+            vidaIniciales: 3 // Cantidad de vidas
 
         };
 
 
-        //Configuración del juego
+        //=========================================
+        // Teclas
+        //=========================================
 
         let keys = {};
 
 
-        //Escucha cuando se presiona una tecla
+        // Escucha cuando se presiona una tecla
 
         document.addEventListener("keydown", (e) => {
 
-            //Evita que el navegador haga scroll con las flechas
+            // Evita que el navegador haga scroll con las flechas
 
             if (
                 e.key === "ArrowLeft" ||
@@ -84,85 +91,95 @@
         });
 
 
-        //Escucha cuando se suelta una tecla
+        // Escucha cuando se suelta una tecla
 
         document.addEventListener("keyup", (e) => {
 
             keys[e.key] = false;
 
         });
-//=========================================
-// Suelo
-//=========================================
-
-let suelo = {
-
-    y: 350,
-
-    color: "green"
-
-};  
 
 
-        //Crear el jugador
+        //=========================================
+        // Suelo
+        //=========================================
+
+        let suelo = {
+
+            y: 350,
+
+            color: "green"
+
+        };
+
+
+        //=========================================
+        // Crear jugador
+        //=========================================
 
         function crearJugador() {
-       
+
             return {
 
-                //Posición del jugador
+                // Posición
 
                 x: 100,
 
                 y: 300,
 
 
-                //Tamaño
+                // Tamaño
 
                 w: 40,
 
                 h: 40,
 
 
-                //Velocidad
+                // Velocidad
 
                 vx: 0,
 
                 vy: 0,
 
 
-                //Apariencia
+                // Apariencia
 
                 color: "cyan",
 
 
-                //¿Esta saltando?
+                // ¿Está saltando?
 
                 saltando: false,
 
 
-                //Protección de vida
+                // Protección de vida
 
                 invulnerable: false
 
             };
 
         }
-         let jugador = crearJugador();
 
 
-        //Enemigos
+        // Crear jugador
+
+        let jugador = crearJugador();
+
+
+        //=========================================
+        // Enemigos
+        //=========================================
 
         let enemigos = [];
 
 
-        //crear un enemigo
+        // Crear un enemigo
 
         function crearEnemigo() {
 
             enemigos.push({
 
-                //aparece en el lado derecho del canvas
+                // Aparece en el lado derecho
 
                 x: canvas.width,
 
@@ -173,7 +190,7 @@ let suelo = {
                 h: 40,
 
 
-                //velocidad hacia la izq
+                // Velocidad hacia la izquierda
 
                 vx: -4,
 
@@ -184,27 +201,31 @@ let suelo = {
         }
 
 
-        //Generar enemigos cada cierto tiempo
+        // Generar enemigos cada cierto tiempo
 
         setInterval(crearEnemigo, config.spawnRate);
 
 
-        //Colision
+        //=========================================
+        // Colisión
+        //=========================================
 
         function colision(a, b) {
 
-            return a.x < b.x + b.w && //Colisión de arriba
+            return a.x < b.x + b.w &&
 
-                   a.x + a.w > b.x && //Colisión de abajo
+                   a.x + a.w > b.x &&
 
-                   a.y < b.y + b.h && //Colisión de izquierda
+                   a.y < b.y + b.h &&
 
-                   a.y + a.h > b.y; //Colisión de derecha
+                   a.y + a.h > b.y;
 
         }
 
 
-        //Estado de juego
+        //=========================================
+        // Estado del juego
+        //=========================================
 
         let gameOver = false;
 
@@ -215,41 +236,42 @@ let suelo = {
         let vidas = config.vidaIniciales;
 
 
-        //Perder una vida
+        //=========================================
+        // Perder una vida
+        //=========================================
 
         function perderVida() {
 
-            //Restar una vida
+            // Restar una vida
 
             vidas--;
 
 
-            //Eliminar temporalmente todos los enemigos
-            //para evitar recibir daño inmediatamente al reiniciar
+            // Eliminar temporalmente todos los enemigos
 
             enemigos = [];
 
 
-            //regresar al jugador a la posición inicial
+            // Regresar al jugador a la posición inicial
 
             jugador.x = 100;
 
             jugador.y = suelo.y - jugador.h;
 
 
-            //Detener su movimiento
+            // Detener su movimiento
 
             jugador.vx = 0;
 
             jugador.vy = 0;
 
 
-            //El jugador estará invulnerable por 2 segundos
+            // El jugador será invulnerable
 
             jugador.invulnerable = true;
 
 
-            //Si ya no quedan vidas
+            // Si ya no quedan vidas
 
             if (vidas <= 0) {
 
@@ -260,7 +282,7 @@ let suelo = {
             }
 
 
-            //Después de 1 segundo, el jugador ya no será invulnerable
+            // Después de 1 segundo deja de ser invulnerable
 
             setTimeout(() => {
 
@@ -271,7 +293,9 @@ let suelo = {
         }
 
 
-        //Reiniciar juego
+        //=========================================
+        // Reiniciar juego
+        //=========================================
 
         function reiniciarJuego() {
 
@@ -281,56 +305,55 @@ let suelo = {
 
             score = 0;
 
-
-            //Restaurar las vidas
-
             vidas = config.vidaIniciales;
 
             gameOver = false;
 
             pausado = false;
 
-            keys = {}; // Objeto vacío para guardar información
+            keys = {};
 
         }
 
 
-        //Pausar
+        //=========================================
+        // Pausar
+        //=========================================
 
         function alternarPausa() {
 
-            //No se puede pausar después de perder
-
-            //Revisa si la variable gameOver es verdadera
+            // No se puede pausar después de perder
 
             if (gameOver) return;
 
 
-            //Cambia el juego, si está pausado lo despausa
-
-            //si está despausado, lo pausa
+            // Cambia el estado de pausa
 
             pausado = !pausado;
 
         }
 
 
-        //Update
+        //=========================================
+        // UPDATE
+        //=========================================
 
         function update() {
 
-            //Si está pausado o terminó el juego,
+            // Si está pausado o terminó el juego
 
-            //detenemos la actualización
+            // detenemos la actualización
 
             if (gameOver || pausado) return;
 
 
-            //Movimiento del jugador
+            //=========================================
+            // Movimiento del jugador
+            //=========================================
 
             if (keys["ArrowRight"]) {
 
-                //Comprueba si el jugador está presionando la tecla de -> derecha
+                // Movimiento hacia la derecha
 
                 jugador.vx = config.velocidadJugador;
 
@@ -338,7 +361,7 @@ let suelo = {
 
             else if (keys["ArrowLeft"]) {
 
-                //Comprueba si presiona flecha izq y retrocede
+                // Movimiento hacia la izquierda
 
                 jugador.vx = -config.velocidadJugador;
 
@@ -346,16 +369,18 @@ let suelo = {
 
             else {
 
-                //Detenga al jugador si no se presiona ninguna tecla
+                // Detener al jugador
 
                 jugador.vx = 0;
 
             }
 
 
-            //Salto
+            //=========================================
+            // Salto
+            //=========================================
 
-            //Verifique si el jugador está presionando barra espaciadora
+            // Verifica si presiona espacio
 
             if (keys[" "] && !jugador.saltando) {
 
@@ -366,71 +391,73 @@ let suelo = {
             }
 
 
-            //Física del juego
+            //=========================================
+            // Física
+            //=========================================
 
-            //Aplica gravedad
+            // Aplica gravedad
 
             jugador.vy += config.gravedad;
 
 
-            //Actualiza la posición horizontal
+            // Actualiza posición horizontal
 
             jugador.x += jugador.vx;
 
 
-            //Actualiza la posición vertical
+            // Actualiza posición vertical
 
             jugador.y += jugador.vy;
 
 
             //=========================================
-            //Límites
+            // Límites
             //=========================================
 
-            //Detecta jugador se sale por el borde izq
+            // Borde izquierdo
 
             if (jugador.x < 0) {
-
-                //Congela la posición en 0
 
                 jugador.x = 0;
 
             }
 
 
-            //Detecta si el jugador pasa el borde der
+            // Borde derecho
 
             if (jugador.x + jugador.w > canvas.width) {
-
-                //Ajusta la posición
 
                 jugador.x = canvas.width - jugador.w;
 
             }
 
 
-            //Suelo
+            //=========================================
+            // Suelo
+            //=========================================
 
             if (jugador.y + jugador.h > suelo.y) {
 
-                //Corrige la posición del jugador sobre el suelo
+                // Coloca al jugador sobre el suelo
 
                 jugador.y = suelo.y - jugador.h;
 
 
-                //Detiene la caída
+                // Detiene la caída
 
                 jugador.vy = 0;
 
 
-                //Restablece el estado
+                // Ya no está saltando
 
                 jugador.saltando = false;
 
             }
 
 
-            //Enemigos
+            //=========================================
+            // Enemigos
+            //=========================================
 
             for (
                 let i = enemigos.length - 1;
@@ -441,43 +468,47 @@ let suelo = {
                 let e = enemigos[i];
 
 
-                //Movimiento del enemigo
+                // Movimiento del enemigo
 
                 e.x += e.vx;
 
 
-                //Colisión
+                //=========================================
+                // Colisión
+                //=========================================
 
                 if (
                     colision(jugador, e) &&
                     !jugador.invulnerable
                 ) {
 
-                    //Perdemos una vida
+                    // Perdemos una vida
 
                     perderVida();
 
 
-                    //Eliminamos el enemigo
+                    // Eliminamos el enemigo
 
                     enemigos.splice(i, 1);
 
 
-                    //Continuamos con el siguiente enemigo
+                    // Continuamos con el siguiente enemigo
 
                     continue;
 
                 }
 
 
-                //Enemigo fuera de la pantalla
+                //=========================================
+                // Enemigo fuera de pantalla
+                //=========================================
 
                 if (e.x + e.w < 0) {
 
                     enemigos.splice(i, 1);
 
 
-                    //Ganamos un punto
+                    // Ganamos un punto
 
                     score++;
 
@@ -488,11 +519,13 @@ let suelo = {
         }
 
 
-        //Draw
+        //=========================================
+        // DRAW
+        //=========================================
 
         function draw() {
 
-            //Limpiar canvas
+            // Limpiar canvas
 
             ctx.clearRect(
                 0,
@@ -502,7 +535,9 @@ let suelo = {
             );
 
 
-            //Fondo
+            //=========================================
+            // Fondo
+            //=========================================
 
             ctx.fillStyle = "#333";
 
@@ -514,7 +549,9 @@ let suelo = {
             );
 
 
-            //Suelo
+            //=========================================
+            // Suelo
+            //=========================================
 
             ctx.fillStyle = suelo.color;
 
@@ -526,16 +563,18 @@ let suelo = {
             );
 
 
-            //Jugador
+            //=========================================
+            // Jugador
+            //=========================================
 
-            /* Si está vulnerable hacemos que parpadee */
+            // Si está invulnerable hacemos que parpadee
 
             if (
                 jugador.invulnerable &&
                 Math.floor(Date.now() / 100 % 2) === 0
             ) {
 
-                //No dibujamos al jugador en este momento
+                // No dibujamos al jugador en este momento
 
             }
 
@@ -553,7 +592,9 @@ let suelo = {
             }
 
 
-            //Enemigos
+            //=========================================
+            // Enemigos
+            //=========================================
 
             enemigos.forEach(e => {
 
@@ -569,14 +610,16 @@ let suelo = {
             });
 
 
-            //Información del juego
+            //=========================================
+            // Información del juego
+            //=========================================
 
             ctx.fillStyle = "white";
 
             ctx.font = "18px Arial";
 
 
-            //Puntuación
+            // Puntuación
 
             ctx.fillText(
                 "Score: " + score,
@@ -585,7 +628,7 @@ let suelo = {
             );
 
 
-            //Vidas
+            // Vidas
 
             ctx.fillText(
                 "❤️ Vidas: " + vidas,
@@ -593,61 +636,160 @@ let suelo = {
                 50
             );
 
-            //Pausar
-            if(pausado){
-                //Fondo oscuro transparente
-                ctx.fillStyle = "rgba (0,0,0,0.6)";
-                ctx.fillRect(0,0,canvas.width.canvas.height);
+
+            //=========================================
+            // PAUSA
+            //=========================================
+
+            if (pausado) {
+
+                // Fondo oscuro transparente
+
+                ctx.fillStyle = "rgba(0,0,0,0.6)";
+
+                ctx.fillRect(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+
+                // Texto PAUSA
 
                 ctx.fillStyle = "white";
+
                 ctx.font = "40px Arial";
-                ctx.fillText("⏸️ PAUSA ", 320, 220);
+
+                ctx.fillText(
+                    "⏸️ PAUSA",
+                    320,
+                    220
+                );
+
+
+                // Texto para continuar
 
                 ctx.font = "20px Arial";
-                ctx.fillText("Presiona P o ESC para continuar", 265, 260);
+
+                ctx.fillText(
+                    "Presiona P o ESC para continuar",
+                    265,
+                    260
+                );
+
             }
 
-            //Game Over
-            if(gameOver){
-                ctx.fillStyle = "rgba (0,0,0,0.7)";
-                ctx.fillRect (0,0,canvas.width.canvas.height);
+
+            //=========================================
+            // GAME OVER
+            //=========================================
+
+            if (gameOver) {
+
+                // Fondo oscuro transparente
+
+                ctx.fillStyle = "rgba(0,0,0,0.7)";
+
+                ctx.fillRect(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+
+                // Texto GAME OVER
 
                 ctx.fillStyle = "white";
+
                 ctx.font = "40px Arial";
-                ctx.fillText("💀 GAME OVER ", 280, 200);
+
+                ctx.fillText(
+                    "☠️ GAME OVER",
+                    280,
+                    200
+                );
+
+
+                // Texto para reiniciar
 
                 ctx.font = "20px Arial";
-                ctx.fillText("Presiona R para reiniciar", 295, 275);
+
+                ctx.fillText(
+                    "Presiona R para reiniciar",
+                    295,
+                    275
+                );
+
             }
+
         }
 
-        //Game loop
-        function loop(){
-            //actualiza la logica
+
+        //=========================================
+        // GAME LOOP
+        //=========================================
+
+        function loop() {
+
+            // Actualizar la lógica
+
             update();
+
+
+            // Dibujar
+
             draw();
 
-            //volver a ejecutar next frame
+
+            // Volver a ejecutar en el siguiente frame
+
             requestAnimationFrame(loop);
+
         }
 
-        //Controles
+
+        //=========================================
+        // CONTROLES
+        //=========================================
+
         document.addEventListener("keydown", e => {
-            //P=pausar/continuar
-            if(e.key.toLowerCase()==="p"){
+
+            // P = pausar / continuar
+
+            if (e.key.toLowerCase() === "p") {
+
                 alternarPausa();
+
             }
 
-            //ESC = Pausar
-            if(e.key === "Escape"){
+
+            // ESC = pausar / continuar
+
+            if (e.key === "Escape") {
+
                 alternarPausa();
+
             }
 
-            //Restart
-            if(e.key.toLowerCase() === "r"){
+
+            // R = reiniciar
+
+            if (e.key.toLowerCase() === "r") {
+
                 reiniciarJuego();
+
             }
+
         });
+
+
+        //=========================================
+        // INICIAR JUEGO
+        //=========================================
+
+        loop();
 
     </script>
 
