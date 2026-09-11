@@ -3,9 +3,882 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Kayak</title>
+    <title>FastBeaver</title>
+
+
+    <style>
+
+        body {
+            background: #0000;
+            color: white;
+            text-align: center;
+            font-family: monospace, Arial;
+        }
+
+        canvas {
+            background-image: url(imgs/bg__cielo.png);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            border: 2px solid white;
+            margin-top: 20px;
+        }
+
+        #personaje{
+            position: absolute;
+
+            width: 80px;
+            height: 80px;
+
+            /*img del pesronaje*/
+            background-image: url(imgs/beaver.png);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            left: 360px;
+            top: 210px;
+        }
+
+    </style>
 </head>
+
+
 <body>
-    
+    <canvas id="canvas" width="800" height="500"></canvas>
+
+
+    <script>
+         const canvas = document.getElementById("canvas");
+
+        const ctx = canvas.getContext("2d");
+
+        const imagenJugador = new Image();
+        imagenJugador.src = "imgs/beaver.png";
+
+        const sonidoSalto = new Audio("sounds/salto.mp3");
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // Configuración del juego
+        let config = {
+
+            gravedad: 0.4, // Fuerza de gravedad al jugador
+
+            velocidadJugador: 11, // Velocidad del jugador
+
+            salto: -12, // Fuerza de salto
+
+            spawnRate: 2000, // Tiempo para que aparezcan enemigos
+
+            vidaIniciales: 3 // Cantidad de vidas
+
+        };
+
+
+        let keys = {};
+
+
+        // Escucha cuando se presiona una tecla
+        document.addEventListener("keydown", (e) => {
+
+            // Evita que el navegador haga scroll con las flechas
+
+            if (
+                e.key === "ArrowLeft" ||
+                e.key === "ArrowRight" ||
+                e.key === "ArrowUp" ||
+                e.key === "ArrowDown"
+            ) {
+                e.preventDefault();
+            }
+            keys[e.key] = true;
+        });
+
+
+
+        // Escucha cuando se suelta una tecla
+        document.addEventListener("keyup", (e) => {
+
+            keys[e.key] = false;
+
+        });
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // Suelo
+        
+        let suelo = {
+
+            y: 350,
+
+            color: "green"
+
+        };
+
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // Jugador
+        
+ function crearJugador() {
+
+            return {
+                // Posición
+                x: 100,
+                y: 300,
+
+
+                // Tamaño
+                w: 200,
+                h: 100,
+
+
+                // Velocidad
+                vx: 0,
+                vy: 0,
+
+
+                // ¿Está saltando?
+                saltando: false,
+                rotacion: 0,
+
+                // Protección de vida
+                invulnerable: false,
+
+                imgObj: imagenJugador
+            };
+
+        }
+
+                // Crear jugador
+
+        let jugador = crearJugador();
+
+        // =========================================
+        // NUBES
+        // =========================================
+
+        let nubes = [];
+
+        const imagenNube1 = new Image();
+        imagenNube1.src = "imgs/bg__nube1.png";
+
+        const imagenNube2 = new Image();
+        imagenNube2.src = "imgs/bg__nube2.png";
+
+        let tiempoProximaNube = 0;
+
+
+        //=========================================
+        // Enemigos
+        //=========================================
+
+        let enemigos = [];
+
+
+        // Crear un enemigo
+
+        function crearEnemigo() {
+            const img = new Image();
+            img.src = "imgs/mid_rock1.png"; // ruta de la imagen del enemigo
+
+            enemigos.push({
+                // Aparece en el lado derecho
+                x: canvas.width,
+                y: 310,
+                w: 100,
+                h: 50,
+
+                // Velocidad hacia la izquierda
+                vx: -8,
+
+                // Guardamos la imagen en lugar del color
+                imgObj: img
+            });
+        }
+
+/*
+        function crearEnemigo() {
+
+            enemigos.push({
+                // Aparece en el lado derecho
+
+                x: canvas.width,
+                y: 310,
+                w: 30,
+                h: 40,
+
+                // Velocidad hacia la izquierda
+                vx: -4,
+                color: "red"
+
+            });
+
+        }
+
+*/
+        // Generar enemigos cada cierto tiempo
+
+        setInterval(crearEnemigo, config.spawnRate);
+
+
+        //=========================================
+        // Colisión
+        //=========================================
+
+        function colision(a, b) {
+
+            return a.x < b.x + b.w - 10 &&   // margen a la derecha
+        a.x + a.w > b.x + 10 &&   // margen a la izquierda
+        a.y < b.y + b.h - 10 &&   // margen abajo
+        a.y + a.h > b.y + 10      // margen arriba)
+        }
+
+
+        //=========================================
+        // Estado del juego
+        //=========================================
+
+        let gameOver = false;
+
+        let pausado = false;
+
+        let score = 0;
+
+        let vidas = config.vidaIniciales;
+
+
+        //=========================================
+        // Perder una vida
+        //=========================================
+
+        function perderVida() {
+
+            // Restar una vida
+
+            vidas--;
+
+
+            // Eliminar temporalmente todos los enemigos
+
+            enemigos = [];
+
+
+            // Regresar al jugador a la posición inicial
+
+            jugador.x = 100;
+
+            jugador.y = suelo.y - jugador.h;
+
+
+            // Detener su movimiento
+
+            jugador.vx = 0;
+
+            jugador.vy = 0;
+
+
+            // El jugador será invulnerable
+
+            jugador.invulnerable = true;
+
+
+            // Si ya no quedan vidas
+
+            if (vidas <= 0) {
+
+                gameOver = true;
+
+                jugador.invulnerable = false;
+
+            }
+
+
+            // Después de 1 segundo deja de ser invulnerable
+
+            setTimeout(() => {
+
+                jugador.invulnerable = false;
+
+            }, 1000);
+
+        }
+
+
+        //=========================================
+        // Reiniciar juego
+        //=========================================
+
+        function reiniciarJuego() {
+
+            jugador = crearJugador();
+
+            enemigos = [];
+
+            score = 0;
+
+            vidas = config.vidaIniciales;
+
+            gameOver = false;
+
+            pausado = false;
+
+            keys = {};
+
+        }
+
+
+        //=========================================
+        // Pausar
+        //=========================================
+
+        function alternarPausa() {
+
+            // No se puede pausar después de perder
+
+            if (gameOver) return;
+
+
+            // Cambia el estado de pausa
+
+            pausado = !pausado;
+
+        }
+
+
+        //=========================================
+        // UPDATE
+        //=========================================
+
+        function update() {
+
+            // Si está pausado o terminó el juego
+
+            // detenemos la actualización
+
+            if (gameOver || pausado) return;
+
+
+            //=========================================
+            // Movimiento del jugador
+            //=========================================
+
+            if (keys["ArrowRight"]) {
+
+                // Movimiento hacia la derecha
+
+                jugador.vx = config.velocidadJugador;
+
+            }
+
+            else if (keys["ArrowLeft"]) {
+
+                // Movimiento hacia la izquierda
+
+                jugador.vx = -config.velocidadJugador;
+
+            }
+
+            else {
+
+                // Detener al jugador
+
+                jugador.vx = 0;
+
+            }
+
+
+            //=========================================
+            // Salto
+            //=========================================
+
+            // Verifica si presiona espacio
+
+            if (keys[" "] && !jugador.saltando) {
+
+                jugador.vy = config.salto;
+
+                jugador.saltando = true;
+
+                sonidoSalto.currentTime = 0;
+                sonidoSalto.play();
+            }
+
+
+            //=========================================
+            // Física
+            //=========================================
+
+            // Aplica gravedad
+
+            jugador.vy += config.gravedad;
+
+
+            // Actualiza posición horizontal
+
+            jugador.x += jugador.vx;
+
+
+            // Actualiza posición vertical
+
+            jugador.y += jugador.vy;
+
+
+
+            if (jugador.saltando) {
+                 jugador.rotacion = Math.sin(Date.now() / 100) * 0.20;
+                } else {
+                    jugador.rotacion = 0;
+                }
+
+
+
+
+
+            // =========================================
+            // MOVIMIENTO DE LAS NUBES
+            // =========================================
+
+            nubes.forEach(nube => {
+                nube.x -= nube.velocidad;
+            });
+
+            // Eliminar nubes que salen de la pantalla
+            nubes = nubes.filter(nube => nube.x + nube.w > 0);
+
+            // Crear una nueva nube
+            tiempoProximaNube--;
+
+            if (tiempoProximaNube <= 0) {
+
+                const imagen = Math.random() < 0.5
+                    ? imagenNube1
+                    : imagenNube2;
+
+                nubes.push({
+                    x: canvas.width + 20,
+                    y: 40 + Math.random() * 150,
+                    w: 140,
+                    h: 70,
+                    velocidad: 2,
+                    img: imagen
+                });
+
+                // Entre 2 y 4 segundos
+                tiempoProximaNube = 120 + Math.random() * 120;
+            }
+
+            //=========================================
+            // Límites
+            //=========================================
+
+            // Borde izquierdo
+
+            if (jugador.x < 0) {
+
+                jugador.x = 0;
+
+            }
+
+
+            // Borde derecho
+
+            if (jugador.x + jugador.w > canvas.width) {
+
+                jugador.x = canvas.width - jugador.w;
+
+            }
+
+
+            //=========================================
+            // Suelo
+            //=========================================
+
+            if (jugador.y + jugador.h > suelo.y) {
+
+                // Coloca al jugador sobre el suelo
+
+                jugador.y = suelo.y - jugador.h;
+
+
+                // Detiene la caída
+
+                jugador.vy = 0;
+
+
+                // Ya no está saltando
+
+                jugador.saltando = false;
+
+            }
+
+
+            //=========================================
+            // Enemigos
+            //=========================================
+
+            
+
+
+           for (
+                let i = enemigos.length - 1;
+                i >= 0;
+                i--
+            ) {
+
+                let e = enemigos[i];
+
+
+                // Movimiento del enemigo
+
+                e.x += e.vx;
+
+
+                //=========================================
+                // Colisión
+                //=========================================
+
+                if (
+                    colision(jugador, e) &&
+                    !jugador.invulnerable
+                ) {
+
+                    // Perdemos una vida
+
+                    perderVida();
+
+
+                    // Eliminamos el enemigo
+
+                    enemigos.splice(i, 1);
+
+
+                    // Continuamos con el siguiente enemigo
+
+                    continue;
+
+                }
+
+
+                //=========================================
+                // Enemigo fuera de pantalla
+                //=========================================
+
+                if (e.x + e.w < 0) {
+
+                    enemigos.splice(i, 1);
+
+
+                    // Ganamos un punto
+
+                    score++;
+
+                }
+
+            }
+
+        }
+
+
+        //=========================================
+        // DRAW
+        //=========================================
+
+        function draw() {
+
+            // Limpiar canvas
+
+            ctx.clearRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            //=========================================
+            // Fondo
+            //=========================================
+/*
+            ctx.fillStyle = "#333";
+
+            ctx.fillRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+*/
+
+            //=========================================
+            // Suelo
+            //=========================================
+
+
+
+ /*           ctx.fillStyle = suelo.color;
+
+            ctx.fillRect(
+                0,
+                suelo.y,
+                canvas.width,
+                50
+            );
+
+*/
+
+            // =========================================
+            // NUBES
+            // =========================================
+
+            nubes.forEach(nube => {
+
+                if (nube.img.complete) {
+                    ctx.drawImage(
+                        nube.img,
+                        nube.x,
+                        nube.y,
+                        nube.w,
+                        nube.h
+                    );
+                }
+
+            });
+
+
+
+
+            //=========================================
+            // Jugador
+            //=========================================
+
+            // Si está invulnerable hacemos que parpadee
+
+            if (
+                jugador.invulnerable &&
+                Math.floor(Date.now() / 100 % 2) === 0
+            ) {
+
+                // No dibujamos al jugador en este momento
+
+            }
+
+            else {
+                ctx.save();
+
+                ctx.translate(
+                    jugador.x + jugador.w / 2,
+                    jugador.y + jugador.h / 2
+                );
+
+                ctx.rotate(jugador.rotacion);
+
+                ctx.drawImage(
+                    jugador.imgObj,
+                    -jugador.w / 2,
+                    -jugador.h / 2,
+                    jugador.w,
+                    jugador.h
+                );
+
+                ctx.restore();
+
+
+
+            }
+
+
+            //=========================================
+            // Enemigos
+            //=========================================
+
+           enemigos.forEach(e => {
+                if (e.imgObj.complete) {
+                    ctx.drawImage(
+                        e.imgObj,
+                        e.x,
+                        e.y,
+                        e.w,
+                        e.h
+                    );
+                }
+            });
+
+
+ /*           enemigos.forEach(e => {
+
+                ctx.fillStyle = e.color;
+
+                ctx.fillRect(
+                    e.x,
+                    e.y,
+                    e.w,
+                    e.h
+                );
+
+            });
+*/
+
+            //=========================================
+            // Información del juego
+            //=========================================
+
+            ctx.fillStyle = "white";
+
+            ctx.font = "18px Arial";
+
+
+            // Puntuación
+
+            ctx.fillText(
+                "Score: " + score,
+                10,
+                25
+            );
+
+
+            // Vidas
+
+            ctx.fillText(
+                "❤️ Vidas: " + vidas,
+                10,
+                50
+            );
+
+
+            //=========================================
+            // PAUSA
+            //=========================================
+
+            if (pausado) {
+
+                // Fondo oscuro transparente
+
+                ctx.fillStyle = "rgba(0,0,0,0.6)";
+
+                ctx.fillRect(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+
+                // Texto PAUSA
+
+                ctx.fillStyle = "white";
+
+                ctx.font = "40px Arial";
+
+                ctx.fillText(
+                    "⏸️ PAUSA",
+                    320,
+                    220
+                );
+
+
+                // Texto para continuar
+
+                ctx.font = "20px Arial";
+
+                ctx.fillText(
+                    "Presiona P o ESC para continuar",
+                    265,
+                    260
+                );
+
+            }
+
+
+            //=========================================
+            // GAME OVER
+            //=========================================
+
+            if (gameOver) {
+
+                // Fondo oscuro transparente
+
+                ctx.fillStyle = "rgba(0,0,0,0.7)";
+
+                ctx.fillRect(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+
+                // Texto GAME OVER
+
+                ctx.fillStyle = "white";
+
+                ctx.font = "40px Arial";
+
+                ctx.fillText(
+                    "☠️ GAME OVER",
+                    280,
+                    200
+                );
+
+
+                // Texto para reiniciar
+
+                ctx.font = "20px Arial";
+
+                ctx.fillText(
+                    "Presiona R para reiniciar",
+                    295,
+                    275
+                );
+
+            }
+
+        }
+
+/////////////////////////////////
+        // GAME LOOP
+
+        function loop() {
+
+            // Actualizar la lógica
+            update();
+
+            // Dibujar
+            draw();
+
+
+            // Volver a ejecutar en el siguiente frame
+            requestAnimationFrame(loop);
+
+        }
+
+
+        // CONTROLES
+        //=========================================
+
+        document.addEventListener("keydown", e => {
+            // P = pausar / continuar
+            if (e.key.toLowerCase() === "p") {
+                alternarPausa();
+            }
+
+
+            // ESC = pausar / continuar
+            if (e.key === "Escape") {
+                alternarPausa();
+            }
+
+
+            // R = reiniciar
+            if (e.key.toLowerCase() === "r") {
+                reiniciarJuego();
+            }
+        });
+
+        // INICIAR JUEGO
+
+        loop();
+
+    </script>
+
+
 </body>
 </html>
+
